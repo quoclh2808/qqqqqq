@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đồng hồ đếm ngược đến sinh nhật</title>
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}html,body{height:100%;margin:0}body{align-items:center;background-color:pink;display:flex;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Open Sans','Helvetica Neue',sans-serif}.container{color:#333;margin:0 auto;text-align:center}h1{font-weight:normal;letter-spacing:.125rem;text-transform:uppercase}li{display:inline-block;font-size:1.5rem;list-style-type:none;padding:1em;text-transform:uppercase}li span{display:block;font-size:4.5rem}.emoji{display:none;padding:1rem}.emoji span{font-size:4rem;padding:0 .5rem}
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 id="headline">Đếm ngược đến sinh nhật</h1>
+        <div id="countdown">
+            <ul>
+                <li><span id="days"></span> ngày</li>
+                <li><span id="hours"></span> giờ</li>
+                <li><span id="minutes"></span> phút</li>
+                <li><span id="seconds"></span> giây</li>
+            </ul>
+        </div>
+
+        <div id="content" class="emoji">
+            <span>Hôm nay là sinh nhật của bạn!</span>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const second = 1000, minute = second * 60, hour = minute * 60, day = hour * 24;
+            const birthday = "2024-02-16T00:00:00+07:00";
+
+            function updateCountdown() {
+                const now = new Date().getTime();
+                let countDown = new Date(birthday).getTime();
+                
+                // Check if the birthday has passed this year, then set it to the next year
+                const thisYear = new Date().getFullYear();
+                const birthdayYear = new Date(birthday).getFullYear();
+                if (birthdayYear < thisYear) {
+                    countDown = new Date(thisYear + 1 + birthday.slice(4)).getTime();
+                }
+
+                const distance = countDown - now;
+
+                document.getElementById("days").innerText = Math.floor(distance / day);
+                document.getElementById("hours").innerText = Math.floor((distance % day) / hour);
+                document.getElementById("minutes").innerText = Math.floor((distance % hour) / minute);
+                document.getElementById("seconds").innerText = Math.floor((distance % minute) / second);
+
+                if (distance <= 0 && distance > -day) {
+                    document.getElementById("headline").innerText = "Hôm nay là sinh nhật của bạn!";
+                    document.getElementById("countdown").style.display = "none";
+                    document.getElementById("content").style.display = "block";
+
+                    if (!getCookie("birthdayRedirected")) {
+                        setCookie("birthdayRedirected", "true", 1);
+                        setTimeout(() => {
+                            deleteCookie("birthdayRedirected");
+                        }, day);
+                        window.location.replace("index2.html");
+                    }
+                }
+            }
+
+            function setCookie(name, value, days) {
+                const date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                const expires = "expires=" + date.toUTCString();
+                document.cookie = name + "=" + value + ";" + expires + ";path=/";
+            }
+
+            function getCookie(name) {
+                const cookieName = name + "=";
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    let cookie = cookies[i];
+                    while (cookie.charAt(0) === ' ') {
+                        cookie = cookie.substring(1);
+                    }
+                    if (cookie.indexOf(cookieName) === 0) {
+                        return cookie.substring(cookieName.length, cookie.length);
+                    }
+                }
+                return "";
+            }
+
+            function deleteCookie(name) {
+                document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            }
+
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+        })();
+    </script>
+
+    <footer style="position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); color: #333; font-size: 12px;">
+        &copy; 2023 Luong Quoc. All rights reserved.
+    </footer>
+</body>
+
+</html>
